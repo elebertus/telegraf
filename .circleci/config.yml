@@ -5,12 +5,18 @@ defaults:
   go-1_10: &go-1_10
     docker:
       - image: 'quay.io/influxdb/telegraf-ci:1.10.8'
+        environment:
+          GO111MODULE: 'on'
   go-1_11: &go-1_11
     docker:
       - image: 'quay.io/influxdb/telegraf-ci:1.11.10'
+        environment:
+          GO111MODULE: 'on'
   go-1_12: &go-1_12
     docker:
       - image: 'quay.io/influxdb/telegraf-ci:1.12.5'
+        environment:
+          GO111MODULE: 'on'
 
 version: 2
 jobs:
@@ -19,16 +25,17 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: vendor-{{ checksum "Gopkg.lock" }}
+          key: go-mod-v1-{{ checksum "go.sum" }}
       - run: 'make deps'
-      - run: 'dep check'
+      - run: 'go mod vendor' # in order to not break < go1.11
+      - run: 'go mod verify'
       - save_cache:
-          name: 'vendored deps'
-          key: vendor-{{ checksum "Gopkg.lock" }}
+          name: 'go module cache'
+          key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
-            - './vendor'
+            - '/go/pkg/mod'
       - persist_to_workspace:
-          root: '/go/src'
+          root: '/go'
           paths:
             - '*'
 
@@ -36,7 +43,7 @@ jobs:
     <<: [ *defaults, *go-1_10 ]
     steps:
       - attach_workspace:
-          at: '/go/src'
+          at: '/go'
       # disabled due to gofmt differences (1.10 vs 1.11).
       #- run: 'make check'
       - run: 'make test'
@@ -44,21 +51,21 @@ jobs:
     <<: [ *defaults, *go-1_11 ]
     steps:
       - attach_workspace:
-          at: '/go/src'
+          at: '/go'
       - run: 'make check'
       - run: 'make test'
   test-go-1.12:
     <<: [ *defaults, *go-1_12 ]
     steps:
       - attach_workspace:
-          at: '/go/src'
+          at: '/go'
       - run: 'GOARCH=386 make check'
       - run: 'GOARCH=386 make test'
   test-go-1.12-386:
     <<: [ *defaults, *go-1_12 ]
     steps:
       - attach_workspace:
-          at: '/go/src'
+          at: '/go'
       - run: 'GOARCH=386 make check'
       - run: 'GOARCH=386 make test'
 
@@ -66,7 +73,7 @@ jobs:
     <<: [ *defaults, *go-1_12 ]
     steps:
       - attach_workspace:
-          at: '/go/src'
+          at: '/go'
       - run: 'make package'
       - store_artifacts:
           path: './build'
@@ -75,7 +82,7 @@ jobs:
     <<: [ *defaults, *go-1_12 ]
     steps:
       - attach_workspace:
-          at: '/go/src'
+          at: '/go'
       - run: 'make package-release'
       - store_artifacts:
           path: './build'
@@ -84,7 +91,7 @@ jobs:
     <<: [ *defaults, *go-1_12 ]
     steps:
       - attach_workspace:
-          at: '/go/src'
+          at: '/go'
       - run: 'make package-nightly'
       - store_artifacts:
           path: './build'
