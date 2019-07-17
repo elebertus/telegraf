@@ -2,11 +2,6 @@
 defaults:
   defaults: &defaults
     working_directory: '/go/src/github.com/influxdata/telegraf'
-  go-1_10: &go-1_10
-    docker:
-      - image: 'quay.io/influxdb/telegraf-ci:1.10.8'
-        environment:
-          GO111MODULE: 'on'
   go-1_11: &go-1_11
     docker:
       - image: 'quay.io/influxdb/telegraf-ci:1.11.10'
@@ -27,7 +22,6 @@ jobs:
       - restore_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
       - run: 'make deps'
-      - run: 'go mod vendor' # in order to not break < go1.11
       - run: 'go mod verify'
       - save_cache:
           name: 'go module cache'
@@ -39,14 +33,6 @@ jobs:
           paths:
             - '*'
 
-  test-go-1.10:
-    <<: [ *defaults, *go-1_10 ]
-    steps:
-      - attach_workspace:
-          at: '/go'
-      # disabled due to gofmt differences (1.10 vs 1.11).
-      #- run: 'make check'
-      - run: 'make test'
   test-go-1.11:
     <<: [ *defaults, *go-1_11 ]
     steps:
@@ -105,12 +91,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - 'test-go-1.10':
-          requires:
-            - 'deps'
-          filters:
-            tags:
-              only: /.*/
       - 'test-go-1.11':
           requires:
             - 'deps'
@@ -131,13 +111,11 @@ workflows:
               only: /.*/
       - 'package':
           requires:
-            - 'test-go-1.10'
             - 'test-go-1.11'
             - 'test-go-1.12'
             - 'test-go-1.12-386'
       - 'release':
           requires:
-            - 'test-go-1.10'
             - 'test-go-1.11'
             - 'test-go-1.12'
             - 'test-go-1.12-386'
@@ -149,9 +127,6 @@ workflows:
   nightly:
     jobs:
       - 'deps'
-      - 'test-go-1.10':
-          requires:
-            - 'deps'
       - 'test-go-1.11':
           requires:
             - 'deps'
@@ -163,7 +138,6 @@ workflows:
             - 'deps'
       - 'nightly':
           requires:
-            - 'test-go-1.10'
             - 'test-go-1.11'
             - 'test-go-1.12'
             - 'test-go-1.12-386'
