@@ -23,6 +23,9 @@ jobs:
           key: go-mod-v1-{{ checksum "go.sum" }}
       - run: 'make deps'
       - run: 'go mod verify'
+      - run: 'go mod tidy'
+      # ensure go.mod and go.sum files haven't changed
+      - run: 'git diff --quiet go.mod go.sum || (echo "please run go mod tidy and check in changes" && exit 1)'
       - save_cache:
           name: 'go module cache'
           key: go-mod-v1-{{ checksum "go.sum" }}
