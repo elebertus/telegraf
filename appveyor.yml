@@ -1,22 +1,21 @@
 version: "{build}"
 
 cache:
- - C:\Cache
- - C:\gopath/pkg/mod -> go.sum
+ - C:\gopath\pkg\mod -> go.sum
+ - C:\Users\appveyor\AppData\Local\Temp\chocolatey\ -> appveyor.yml
 
 clone_folder: C:\gopath\src\github.com\influxdata\telegraf
 
 environment:
   GOPATH: C:\gopath
+  GOVERSION: 1.12.7
   GO111MODULE: 'on'
 
 platform: x64
 
 install:
-  - IF NOT EXIST "C:\Cache" mkdir C:\Cache
-  - IF NOT EXIST "C:\Cache\go1.12.5.msi" curl -o "C:\Cache\go1.12.5.msi" https://storage.googleapis.com/golang/go1.12.5.windows-amd64.msi
   - IF EXIST "C:\Go" rmdir /S /Q C:\Go
-  - msiexec.exe /i "C:\Cache\go1.12.5.msi" /quiet
+  - choco install golang --version "%GOVERSION%"
   - choco install make
   - cd "%GOPATH%\src\github.com\influxdata\telegraf"
   - git config --system core.longpaths true
