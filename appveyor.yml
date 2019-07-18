@@ -24,6 +24,7 @@ install:
 
 build_script:
   - make
+  - go mod verify
 
 test_script:
   - make check
