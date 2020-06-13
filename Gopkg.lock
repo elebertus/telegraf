@@ -871,6 +871,19 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:02af0ed7f50601433b30900366a39235ed28e82d7b2c368aaf2a17adc043d359"
+  name = "github.com/newrelic/newrelic-telemetry-sdk-go"
+  packages = [
+    "cumulative",
+    "internal",
+    "internal/jsonx",
+    "telemetry",
+  ]
+  pruneopts = ""
+  revision = "bfbcaeaf4d96a94caced2965ebe8ecfc8faa9406"
+  version = "v0.3.0"
+
+[[projects]]
   digest = "1:7a69f6a3a33929f8b66aa39c93868ad1698f06417fe627ae067559beb94504bd"
   name = "github.com/nsqio/go-nsq"
   packages = ["."]
@@ -1656,6 +1669,8 @@
     "github.com/multiplay/go-ts3",
     "github.com/nats-io/gnatsd/server",
     "github.com/nats-io/go-nats",
+    "github.com/newrelic/newrelic-telemetry-sdk-go/cumulative",
+    "github.com/newrelic/newrelic-telemetry-sdk-go/telemetry",
     "github.com/nsqio/go-nsq",
     "github.com/openconfig/gnmi/proto/gnmi",
     "github.com/openzipkin/zipkin-go-opentracing",
